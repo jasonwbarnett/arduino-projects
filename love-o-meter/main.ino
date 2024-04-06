@@ -11,34 +11,27 @@ void setup() {
 
 void loop() {
   int sensorVal = analogRead(sensorPin);
+  float voltage = sensorVal * 5.0 / 1024.0;
+  float temperature = (voltage - 0.5) * 100;
+
   Serial.print("Sensor Value: ");
   Serial.print(sensorVal);
-
-  float voltage = (sensorVal / 1024.0) * 5;
-  Serial.print(", Volates: ");
+  Serial.print(", Volts: ");
   Serial.print(voltage);
-
   Serial.print(", degrees C: ");
-  // convert voltage to temperature in degrees
-  float temperature = (voltage - .5) * 100;
   Serial.println(temperature);
 
-  if (temperature < baselineTemp) {
-    digitalWrite(2, LOW);
-    digitalWrite(3, LOW);
-    digitalWrite(4, LOW);
-  } else if (temperature >= baselineTemp + 2 && temperature < baselineTemp + 4) {
-    digitalWrite(2, HIGH);
-    digitalWrite(3, LOW);
-    digitalWrite(4, LOW);
-  } else if (temperature >= baselineTemp + 4 && temperature < baselineTemp + 6) {
-    digitalWrite(2, HIGH);
-    digitalWrite(3, HIGH);
-    digitalWrite(4, LOW);
-  } else if (temperature >= baselineTemp + 6) {
-    digitalWrite(2, HIGH);
-    digitalWrite(3, HIGH);
-    digitalWrite(4, HIGH);
-  }
+  updateLEDs(temperature);
   delay(5);
+}
+
+void updateLEDs(float temperature) {
+  int ledState = temperature >= baselineTemp ? HIGH : LOW;
+  digitalWrite(2, ledState);
+
+  ledState = temperature >= baselineTemp + 2 && temperature < baselineTemp + 6 ? HIGH : LOW;
+  digitalWrite(3, ledState);
+
+  ledState = temperature >= baselineTemp + 6 ? HIGH : LOW;
+  digitalWrite(4, ledState);
 }
